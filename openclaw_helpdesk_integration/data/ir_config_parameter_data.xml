@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Parámetros por defecto; editables desde Ajustes -->
+        <record id="icp_openclaw_enabled" model="ir.config_parameter">
+            <field name="key">openclaw.enabled</field>
+            <field name="value">False</field>
+        </record>
+        <record id="icp_openclaw_exec_mode" model="ir.config_parameter">
+            <field name="key">openclaw.exec_mode</field>
+            <field name="value">ssh</field>
+        </record>
+        <record id="icp_openclaw_ssh_port" model="ir.config_parameter">
+            <field name="key">openclaw.ssh_port</field>
+            <field name="value">22</field>
+        </record>
+        <record id="icp_openclaw_ssh_user" model="ir.config_parameter">
+            <field name="key">openclaw.ssh_user</field>
+            <field name="value">root</field>
+        </record>
+        <record id="icp_openclaw_container" model="ir.config_parameter">
+            <field name="key">openclaw.container_name</field>
+            <field name="value">openclaw_gateway</field>
+        </record>
+        <record id="icp_openclaw_agent_id" model="ir.config_parameter">
+            <field name="key">openclaw.agent_id</field>
+            <field name="value">main</field>
+        </record>
+        <record id="icp_openclaw_agent_timeout" model="ir.config_parameter">
+            <field name="key">openclaw.agent_timeout</field>
+            <field name="value">600</field>
+        </record>
+        <record id="icp_openclaw_odoo_base_url" model="ir.config_parameter">
+            <field name="key">openclaw.odoo_base_url</field>
+            <field name="value">https://odoo.conecta.sh</field>
+        </record>
+        <record id="icp_openclaw_post_reply_note" model="ir.config_parameter">
+            <field name="key">openclaw.post_reply_as_note</field>
+            <field name="value">True</field>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

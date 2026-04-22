@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extender vista form del ticket: botón manual + campos de estado IA -->
+    <record id="view_helpdesk_ticket_form_openclaw" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.openclaw</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Botón en el header -->
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_openclaw_request_diagnosis"
+                    type="object"
+                    string="Request AI Diagnosis"
+                    class="btn-secondary"
+                    invisible="not project_id"
+                    groups="openclaw_helpdesk_integration.group_openclaw_connection_manager"
+                />
+            </xpath>
+            <!-- Campos de estado en el sheet -->
+            <xpath expr="//sheet" position="inside">
+                <group name="openclaw_ia_group" string="AI Diagnosis"
+                       groups="openclaw_helpdesk_integration.group_openclaw_connection_manager">
+                    <group>
+                        <field name="ai_diagnosis_state"/>
+                        <field name="ai_diagnosis_last_dispatched_at"/>
+                        <field name="ai_diagnosis_external_ref"/>
+                    </group>
+                    <group>
+                        <field name="ai_diagnosis_last_error"
+                               invisible="ai_diagnosis_state != 'error'"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

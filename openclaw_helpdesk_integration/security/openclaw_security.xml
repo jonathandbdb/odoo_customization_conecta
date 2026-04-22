@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categoría del módulo -->
+        <record id="module_category_openclaw" model="ir.module.category">
+            <field name="name">Openclaw IA</field>
+            <field name="description">Permisos relacionados con la integración Openclaw.</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Grupo: usuarios que pueden ver/editar los datos de conexión del cliente -->
+        <record id="group_openclaw_connection_manager" model="res.groups">
+            <field name="name">Openclaw Connection Manager</field>
+            <field name="category_id" ref="module_category_openclaw"/>
+            <field name="comment">Permite ver y editar los datos de conexión SSH de los proyectos.</field>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

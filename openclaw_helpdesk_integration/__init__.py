@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-from . import helpdesk_ticket, res_partner
+from . import models
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

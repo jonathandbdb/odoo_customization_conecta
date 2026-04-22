@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sección en Ajustes: parámetros Openclaw -->
+    <record id="res_config_settings_view_form_openclaw" model="ir.ui.view">
+        <field name="name">res.config.settings.form.openclaw</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Openclaw IA" string="Openclaw IA"
+                     name="openclaw_helpdesk_integration" groups="base.group_system">
+                    <block title="Openclaw IA (Helpdesk)"
+                           help="Integración con el agente IA Openclaw para diagnóstico automático de tickets.">
+                        <setting id="openclaw_enabled_setting" string="Enable Openclaw Integration"
+                                 help="Activar el disparo automático al agente al crear tickets.">
+                            <field name="openclaw_enabled"/>
+                        </setting>
+                        <setting id="openclaw_exec_mode_setting" string="Exec Mode"
+                                 help="Cómo invocar el CLI openclaw (SSH remoto o docker exec local).">
+                            <field name="openclaw_exec_mode"/>
+                        </setting>
+                        <setting id="openclaw_ssh_host_setting" string="SSH Host">
+                            <field name="openclaw_ssh_host"/>
+                        </setting>
+                        <setting id="openclaw_ssh_port_setting" string="SSH Port">
+                            <field name="openclaw_ssh_port"/>
+                        </setting>
+                        <setting id="openclaw_ssh_user_setting" string="SSH User">
+                            <field name="openclaw_ssh_user"/>
+                        </setting>
+                        <setting id="openclaw_ssh_key_path_setting" string="SSH Key Path"
+                                 help="Ruta a la clave privada dentro del container Odoo (ej: /root/.ssh/id_rsa_conecta).">
+                            <field name="openclaw_ssh_key_path"/>
+                        </setting>
+                        <setting id="openclaw_container_name_setting" string="Openclaw Container Name">
+                            <field name="openclaw_container_name"/>
+                        </setting>
+                        <setting id="openclaw_agent_id_setting" string="Openclaw Agent Id">
+                            <field name="openclaw_agent_id"/>
+                        </setting>
+                        <setting id="openclaw_agent_timeout_setting" string="Agent Timeout (s)">
+                            <field name="openclaw_agent_timeout"/>
+                        </setting>
+                        <setting id="openclaw_odoo_base_url_setting" string="Odoo Base URL"
+                                 help="URL pública de Odoo para armar el link al ticket.">
+                            <field name="openclaw_odoo_base_url"/>
+                        </setting>
+                        <setting id="openclaw_post_reply_as_note_setting"
+                                 string="Post Agent Reply as Internal Note"
+                                 help="Si está activo, publica la primera respuesta del agente como nota interna en el ticket.">
+                            <field name="openclaw_post_reply_as_note"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->
