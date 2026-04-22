@@ -203,6 +203,7 @@ class HelpdeskTicket(models.Model):
         argv = [
             "ssh",
             "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
             "-o", "BatchMode=yes",
             "-p", str(ssh_port),
         ]
