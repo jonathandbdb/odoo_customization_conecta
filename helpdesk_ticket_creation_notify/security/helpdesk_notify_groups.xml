@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categoría propia del módulo para agrupar el permiso en Ajustes > Usuarios -->
+        <record id="module_category_helpdesk_ticket_creation_notify" model="ir.module.category">
+            <field name="name">Helpdesk - Notificación de nuevo ticket</field>
+            <field name="description">Usuarios que reciben aviso por correo al crearse un nuevo ticket de Helpdesk.</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Grupo: usuarios que reciben la notificación por email al crear un ticket -->
+        <record id="group_helpdesk_ticket_creation_notify" model="res.groups">
+            <field name="name">Receptor de nuevos tickets de Helpdesk</field>
+            <field name="category_id" ref="module_category_helpdesk_ticket_creation_notify"/>
+            <field name="comment">Los usuarios con este grupo reciben un correo cada vez que se crea un ticket de Helpdesk.</field>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

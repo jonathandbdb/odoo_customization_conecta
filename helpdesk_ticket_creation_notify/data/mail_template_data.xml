@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Plantilla de correo: notificación a la compañía al crear un ticket -->
+        <record id="mail_template_ticket_creation_company" model="mail.template">
+            <field name="name">Helpdesk: Nuevo ticket (aviso a la compañía)</field>
+            <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+            <field name="subject">[Nuevo ticket {{ object.number or object.id }}] {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email or '') }}</field>
+            <field name="email_to">{{ ctx.get('ticket_notify_email_to') or object.company_id.email or '' }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #2c2c2c;">
+                    <p>Se ha creado un nuevo ticket en Helpdesk:</p>
+                    <table style="border-collapse: collapse; margin: 8px 0;">
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Número:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.number or object.id"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Título:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.name or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Solicitante:</td>
+                            <td style="padding: 4px 10px;">
+                                <t t-out="object.partner_id.name or object.partner_name or '—'"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Email solicitante:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.partner_email or '—'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Categoría:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.category_id.name or '—'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Equipo:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.team_id.name or '—'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Etapa:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.stage_id.name or '—'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Prioridad:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.priority or '—'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Creado por:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.create_uid.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 10px; font-weight: bold;">Fecha de creación:</td>
+                            <td style="padding: 4px 10px;"><t t-out="object.create_date"/></td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 12px;"><strong>Descripción:</strong></p>
+                    <div style="padding: 8px 12px; background: #f7f7f7; border-left: 3px solid #875A7B;">
+                        <t t-out="object.description or '(sin descripción)'"/>
+                    </div>
+                    <hr style="margin-top: 18px;"/>
+                    <p style="color: #888; font-size: 11px;">
+                        Aviso automático generado por Odoo — Helpdesk.
+                    </p>
+                </div>
+            </field>
+            <field name="lang">{{ (object.partner_id.lang or object.company_id.partner_id.lang or user.lang) }}</field>
+            <field name="use_default_to" eval="False"/>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->
