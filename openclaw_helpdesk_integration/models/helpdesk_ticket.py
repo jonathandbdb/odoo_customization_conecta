@@ -219,12 +219,17 @@ class HelpdeskTicket(models.Model):
             "hacelo vía `docker exec <contenedor_db> psql ...` por SSH. "
             "NUNCA uses la skill odoo-manager/XML-RPC para consultar datos "
             "del cliente: esa skill solo conecta a Conecta.",
-            f"  4) Publicá tus hallazgos como NOTA INTERNA en el ticket #{self.id} "
-            "de Conecta, usando la skill odoo-manager (execute_kw → "
-            "helpdesk.ticket.message_post con subtype_xmlid='mail.mt_note'). "
-            "Esta es la ÚNICA cosa para la que usás XML-RPC a Conecta.",
-            "  5) La nota debe empezar con un resumen corto y luego incluir "
-            "los detalles técnicos encontrados en el servidor del cliente.",
+            f"  4) NO publiques tú la nota interna en el ticket #{self.id}. "
+            "El sistema (este módulo) ya tomará tu respuesta final y la "
+            "publicará automáticamente como nota interna usando tu salida. "
+            "Si publicás vos también, queda duplicado y mal formateado. "
+            "Por lo tanto: NO uses odoo-manager/execute_kw → message_post. "
+            "Solo respondé al final con tu diagnóstico en formato HTML "
+            "limpio (usá <p>, <ul>, <li>, <strong>, <code>, etc.) o en "
+            "Markdown si preferís — pero no llames vos a la API de Odoo.",
+            "  5) Tu respuesta debe empezar con un resumen corto y luego "
+            "incluir los detalles técnicos encontrados en el servidor del "
+            "cliente.",
         ]
         return "\n".join(lines)
 
