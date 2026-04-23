@@ -335,10 +335,19 @@ class HelpdeskTicket(models.Model):
             "1", "true", "t", "yes",
         )
         if post_note and reply_text:
-            body = Markup(
+            # Comentario en español: si el agente ya devuelve HTML lo renderizamos
+            # tal cual; si viene como texto plano lo mostramos en <pre> escapado.
+            is_html = bool(re.search(
+                r"<(p|ul|ol|li|strong|em|code|pre|br|div|span|h[1-6])\b",
+                reply_text, re.IGNORECASE,
+            ))
+            header = Markup(
                 "<p><strong>🦞 Openclaw — respuesta inicial del agente</strong></p>"
-                "<pre>%s</pre>"
-            ) % reply_text
+            )
+            if is_html:
+                body = header + Markup(reply_text)
+            else:
+                body = header + Markup("<pre>%s</pre>") % reply_text
             self.sudo().message_post(
                 body=body,
                 subtype_xmlid="mail.mt_note",
