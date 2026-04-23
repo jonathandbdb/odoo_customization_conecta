@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Comentario en español: cron que procesa en background los tickets
+         marcados como 'pending' para el diagnóstico IA de Openclaw. Está
+         pensado para ser disparado inmediatamente vía _trigger() al crear
+         un ticket, y como fallback corre cada 5 minutos. -->
+    <record id="ir_cron_openclaw_dispatch" model="ir.cron">
+        <field name="name">Openclaw: Dispatch pending AI diagnosis</field>
+        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_openclaw_dispatch_pending(batch_size=5)</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

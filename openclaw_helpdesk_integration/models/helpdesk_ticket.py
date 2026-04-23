@@ -62,27 +62,61 @@ class HelpdeskTicket(models.Model):
         help="Identificador de la corrida del agente Openclaw (runId/sessionId).",
     )
 
-    # --- Creación: disparo automático ----------------------------------------
+    # --- Creación: encolado asíncrono ----------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
         tickets = super().create(vals_list)
-        # Disparo síncrono con try/except: nunca debe romper la creación
-        for ticket in tickets:
-            try:
-                ticket._openclaw_dispatch_on_create()
-            except Exception as error:  # noqa: BLE001
-                _logger.exception(
-                    "Openclaw dispatch failed for ticket %s: %s",
-                    ticket.display_name, error,
-                )
+        # Comentario en español: marcamos como 'pending' y disparamos el cron
+        # para procesar en background, de modo que la creación del ticket
+        # (ej. desde el portal) responda inmediatamente al usuario.
+        to_queue = tickets.filtered(lambda t: t._openclaw_is_applicable())
+        if to_queue:
+            to_queue.sudo().write({"ai_diagnosis_state": "pending"})
+            cron = self.env.ref(
+                "openclaw_helpdesk_integration.ir_cron_openclaw_dispatch",
+                raise_if_not_found=False,
+            )
+            if cron:
+                # Comentario en español: _trigger encola la ejecución del
+                # cron para correr lo antes posible sin bloquear la request.
+                cron.sudo()._trigger()
         return tickets
 
-    def _openclaw_dispatch_on_create(self):
-        """Evalúa si corresponde disparar el diagnóstico IA y lo hace."""
-        self.ensure_one()
-        if not self._openclaw_is_applicable():
+    @api.model
+    def _cron_openclaw_dispatch_pending(self, batch_size=5):
+        """Procesa tickets pendientes de diagnóstico IA en background."""
+        pending = self.search(
+            [("ai_diagnosis_state", "=", "pending")],
+            limit=batch_size,
+            order="id asc",
+        )
+        if not pending:
             return
-        self._openclaw_dispatch_to_agent()
+        for ticket in pending:
+            # Comentario en español: aislamos cada ticket en su propio savepoint
+            # para que un fallo no aborte el lote completo.
+            try:
+                with self.env.cr.savepoint():
+                    ticket._openclaw_dispatch_to_agent()
+            except Exception as error:  # noqa: BLE001
+                _logger.exception(
+                    "Openclaw cron dispatch failed for ticket %s: %s",
+                    ticket.display_name, error,
+                )
+                ticket.sudo().write({
+                    "ai_diagnosis_state": "error",
+                    "ai_diagnosis_last_error": str(error)[:2000],
+                    "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
+                })
+        # Comentario en español: si quedan más pendientes, re-disparar
+        remaining = self.search_count([("ai_diagnosis_state", "=", "pending")])
+        if remaining:
+            cron = self.env.ref(
+                "openclaw_helpdesk_integration.ir_cron_openclaw_dispatch",
+                raise_if_not_found=False,
+            )
+            if cron:
+                cron.sudo()._trigger()
 
     def _openclaw_is_applicable(self):
         """Retorna True si el ticket cumple todas las condiciones para notificar."""

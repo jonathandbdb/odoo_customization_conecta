@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "openclaw_helpdesk_integration",
-    "version": "18.0.1.1.0",
+    "version": "18.0.1.2.0",
     "summary": "Integración Odoo <-> Openclaw (diagnóstico IA de tickets)",
     "description": """
 Al crear un ticket de Helpdesk, invoca directamente el agente IA Openclaw
@@ -32,6 +32,7 @@ Incluye:
         "security/openclaw_security.xml",
         "security/ir.model.access.csv",
         "data/ir_config_parameter_data.xml",
+        "data/ir_cron_data.xml",
         "views/project_project_views.xml",
         "views/helpdesk_ticket_views.xml",
         "views/res_config_settings_views.xml",
