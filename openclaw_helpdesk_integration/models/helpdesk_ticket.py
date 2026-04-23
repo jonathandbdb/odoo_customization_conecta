@@ -176,33 +176,55 @@ class HelpdeskTicket(models.Model):
         )
         ticket_url = self._openclaw_get_ticket_url()
         lines = [
-            "Nuevo ticket en Odoo requiere diagnóstico técnico.",
+            "Tenés que diagnosticar un ticket de Helpdesk de Conecta.",
             "",
-            f"Ticket: #{self.id} — {self.number or ''} — {self.name or ''}",
+            "⚠️ IMPORTANTE — DOS ODOOS DISTINTOS, NO LOS CONFUNDAS:",
+            "  • ODOO DE CONECTA (interno, base 'Conecta'): es DONDE VIVE ESTE",
+            "    TICKET. Lo accedés SOLO por XML-RPC con la skill odoo-manager, y",
+            "    ÚNICAMENTE para publicar al final la nota interna en el ticket.",
+            "    NO analices datos de Conecta. NO consultes facturas/ventas/etc.",
+            "    de Conecta. No es el sistema del cliente.",
+            "  • ODOO DEL CLIENTE (el que hay que diagnosticar): está en otro",
+            "    servidor, corriendo en Docker. Solo accesible por SSH con la",
+            "    clave id_rsa_conecta (ver ~/.ssh/config). NO tiene acceso",
+            "    XML-RPC desde acá. Todo lo que necesites del Odoo del cliente",
+            "    (logs, estado, datos en DB) lo obtenés por SSH → docker logs /",
+            "    docker exec ... psql, docker ps, df -h, free -h, etc.",
+            "",
+            f"Ticket a analizar (vive en Conecta): #{self.id} — "
+            f"{self.number or ''} — {self.name or ''}",
             f"Cliente/Proyecto: {project.display_name}",
             f"Solicitante: {requester}",
             f"Categoría: {self.category_id.display_name or '—'}",
             f"Prioridad: {self.priority or '—'}",
             f"Equipo: {self.team_id.display_name or '—'}",
-            f"URL: {ticket_url}",
+            f"URL del ticket en Conecta: {ticket_url}",
             "",
-            "Conexión SSH del cliente (read-only):",
+            "Servidor del CLIENTE a diagnosticar vía SSH (SOLO LECTURA):",
             f"  host: {project.client_ssh_host}",
             f"  user: {project.client_ssh_user or 'root'}",
             f"  port: {project.client_ssh_port or 22}",
             f"  notas: {ssh_notes}",
             "",
-            "Descripción del ticket:",
+            "Descripción reportada por el usuario en el ticket:",
             description or "(sin descripción)",
             "",
-            "Tarea: conéctate por SSH usando la clave id_rsa_conecta, realiza un "
-            "diagnóstico EXCLUSIVAMENTE EN MODO LECTURA (logs, estado de "
-            "servicios, uso de disco/cpu/ram, errores recientes relevantes al "
-            "problema descrito). NO modifiques nada en el servidor. Al finalizar, "
-            f"publica tus hallazgos como NOTA INTERNA en el ticket #{self.id} "
-            "usando la API de Odoo (helpdesk.ticket → message_post con "
-            "subtype_xmlid='mail.mt_note'). Incluye un resumen corto al inicio "
-            "y los detalles técnicos después.",
+            "Tarea concreta:",
+            f"  1) Conectate por SSH a {project.client_ssh_host} con la clave "
+            "id_rsa_conecta.",
+            "  2) Hacé diagnóstico EN MODO LECTURA relacionado al problema "
+            "descrito (logs de contenedores relevantes, docker ps, uso de "
+            "disco/CPU/RAM, errores recientes). NO modifiques nada.",
+            "  3) Si necesitás ver datos de la base de datos del cliente, "
+            "hacelo vía `docker exec <contenedor_db> psql ...` por SSH. "
+            "NUNCA uses la skill odoo-manager/XML-RPC para consultar datos "
+            "del cliente: esa skill solo conecta a Conecta.",
+            f"  4) Publicá tus hallazgos como NOTA INTERNA en el ticket #{self.id} "
+            "de Conecta, usando la skill odoo-manager (execute_kw → "
+            "helpdesk.ticket.message_post con subtype_xmlid='mail.mt_note'). "
+            "Esta es la ÚNICA cosa para la que usás XML-RPC a Conecta.",
+            "  5) La nota debe empezar con un resumen corto y luego incluir "
+            "los detalles técnicos encontrados en el servidor del cliente.",
         ]
         return "\n".join(lines)
 
