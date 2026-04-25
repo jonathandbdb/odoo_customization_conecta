@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Local-only overrides for the AI gateway (per-host secrets and runtime data)
+conecta_ai_gateway/.env
+conecta_ai_gateway/gateway-data/
+conecta_ai_gateway/docker-compose.override.yml
