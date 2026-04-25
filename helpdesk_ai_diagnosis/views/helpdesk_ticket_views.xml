@@ -20,13 +20,13 @@
                 <group name="ai_diagnosis_group" string="AI Diagnosis"
                        groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager">
                     <group>
-                        <field name="ai_diagnosis_state"/>
-                        <field name="ai_diagnosis_last_dispatched_at"/>
-                        <field name="ai_diagnosis_run_id"/>
+                        <field name="ai_dx_state"/>
+                        <field name="ai_dx_last_dispatched_at"/>
+                        <field name="ai_dx_run_id"/>
                     </group>
                     <group>
-                        <field name="ai_diagnosis_last_error"
-                               invisible="ai_diagnosis_state != 'error'"/>
+                        <field name="ai_dx_last_error"
+                               invisible="ai_dx_state != 'error'"/>
                     </group>
                 </group>
             </xpath>

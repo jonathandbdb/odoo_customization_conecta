@@ -20,7 +20,7 @@ class AIDiagnosisCallbackController(http.Controller):
     Está protegido por:
       - HMAC-SHA256 sobre el body con `ai_diagnosis.callback_secret`.
       - Verificación de timestamp para evitar replay.
-      - Token de un solo uso (`ai_diagnosis_request_token`) emitido al
+      - Token de un solo uso (`ai_dx_request_token`) emitido al
         ticket en el dispatch y consumido al postear el resultado.
     """
 
@@ -72,8 +72,8 @@ class AIDiagnosisCallbackController(http.Controller):
         ticket = env["helpdesk.ticket"].sudo().browse(int(ticket_id)).exists()
         if not ticket:
             return _json_response({"error": "ticket not found"}, status=404)
-        if not ticket.ai_diagnosis_request_token or not hmac.compare_digest(
-            ticket.ai_diagnosis_request_token or "", token
+        if not ticket.ai_dx_request_token or not hmac.compare_digest(
+            ticket.ai_dx_request_token or "", token
         ):
             _logger.warning(
                 "AI Diagnosis callback: token inválido o ya consumido (ticket=%s).",

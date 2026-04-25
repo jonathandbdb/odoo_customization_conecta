@@ -8,10 +8,10 @@ import secrets
 import time
 
 import requests
-
 from markupsafe import Markup
-from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -30,8 +30,9 @@ DESCRIPTION_TRUNCATE = 4000
 class HelpdeskTicket(models.Model):
     _inherit = "helpdesk.ticket"
 
-    # Estado del diagnóstico IA
-    ai_diagnosis_state = fields.Selection(
+    # Estado del diagnóstico IA (con prefijo ai_dx_ para evitar colisión con
+    # el módulo legacy openclaw_helpdesk_integration mientras coexisten).
+    ai_dx_state = fields.Selection(
         [
             ("not_applicable", "Not Applicable"),
             ("pending", "Pending"),
@@ -44,23 +45,23 @@ class HelpdeskTicket(models.Model):
         readonly=True,
         copy=False,
     )
-    ai_diagnosis_last_dispatched_at = fields.Datetime(
+    ai_dx_last_dispatched_at = fields.Datetime(
         string="AI Diagnosis Last Dispatched",
         readonly=True,
         copy=False,
     )
-    ai_diagnosis_last_error = fields.Text(
+    ai_dx_last_error = fields.Text(
         string="AI Diagnosis Last Error",
         readonly=True,
         copy=False,
     )
-    ai_diagnosis_run_id = fields.Char(
+    ai_dx_run_id = fields.Char(
         string="Gateway Run Id",
         readonly=True,
         copy=False,
         help="Identificador opaco asignado por el gateway para esta corrida.",
     )
-    ai_diagnosis_request_token = fields.Char(
+    ai_dx_request_token = fields.Char(
         string="Callback Token",
         readonly=True,
         copy=False,
@@ -74,7 +75,7 @@ class HelpdeskTicket(models.Model):
         tickets = super().create(vals_list)
         to_queue = tickets.filtered(lambda t: t._ai_diagnosis_is_applicable())
         if to_queue:
-            to_queue.sudo().write({"ai_diagnosis_state": "pending"})
+            to_queue.sudo().write({"ai_dx_state": "pending"})
             cron = self.env.ref(
                 "helpdesk_ai_diagnosis.ir_cron_ai_diagnosis_dispatch",
                 raise_if_not_found=False,
@@ -89,11 +90,11 @@ class HelpdeskTicket(models.Model):
         res = super().write(vals)
         if "tag_ids" in vals:
             to_queue = self.filtered(
-                lambda t: t.ai_diagnosis_state in ("not_applicable", False)
+                lambda t: t.ai_dx_state in ("not_applicable", False)
                 and t._ai_diagnosis_is_applicable()
             )
             if to_queue:
-                to_queue.sudo().write({"ai_diagnosis_state": "pending"})
+                to_queue.sudo().write({"ai_dx_state": "pending"})
                 cron = self.env.ref(
                     "helpdesk_ai_diagnosis.ir_cron_ai_diagnosis_dispatch",
                     raise_if_not_found=False,
@@ -145,7 +146,7 @@ class HelpdeskTicket(models.Model):
         ssh_notes = re.sub(r"<[^>]+>", " ", (project.client_ssh_notes or "")).strip()
         # Token de callback de un solo uso
         token = secrets.token_urlsafe(32)
-        self.sudo().write({"ai_diagnosis_request_token": token})
+        self.sudo().write({"ai_dx_request_token": token})
         icp = self.env["ir.config_parameter"].sudo()
         base = icp.get_param(ICP_ODOO_BASE_URL) or icp.get_param("web.base.url") or ""
         return {
@@ -191,7 +192,7 @@ class HelpdeskTicket(models.Model):
     def _cron_ai_diagnosis_dispatch_pending(self, batch_size=10):
         """Procesa tickets en estado 'pending' enviándolos al gateway."""
         pending = self.search(
-            [("ai_diagnosis_state", "=", "pending")],
+            [("ai_dx_state", "=", "pending")],
             limit=batch_size,
             order="id asc",
         )
@@ -207,11 +208,11 @@ class HelpdeskTicket(models.Model):
                     ticket.display_name, error,
                 )
                 ticket.sudo().write({
-                    "ai_diagnosis_state": "error",
-                    "ai_diagnosis_last_error": str(error)[:2000],
-                    "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
+                    "ai_dx_state": "error",
+                    "ai_dx_last_error": str(error)[:2000],
+                    "ai_dx_last_dispatched_at": fields.Datetime.now(),
                 })
-        remaining = self.search_count([("ai_diagnosis_state", "=", "pending")])
+        remaining = self.search_count([("ai_dx_state", "=", "pending")])
         if remaining:
             cron = self.env.ref(
                 "helpdesk_ai_diagnosis.ir_cron_ai_diagnosis_dispatch",
@@ -229,7 +230,7 @@ class HelpdeskTicket(models.Model):
                 raise UserError(_(
                     "The project %s has no SSH host configured."
                 ) % ticket.project_id.display_name)
-            ticket.sudo().write({"ai_diagnosis_state": "pending"})
+            ticket.sudo().write({"ai_dx_state": "pending"})
             ticket._ai_diagnosis_dispatch()
         return True
 
@@ -242,9 +243,9 @@ class HelpdeskTicket(models.Model):
         timeout = int(icp.get_param(ICP_TIMEOUT) or 15)
         if not gateway_url or not secret:
             self.sudo().write({
-                "ai_diagnosis_state": "error",
-                "ai_diagnosis_last_error": "Gateway URL or webhook secret not configured.",
-                "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
+                "ai_dx_state": "error",
+                "ai_dx_last_error": "Gateway URL or webhook secret not configured.",
+                "ai_dx_last_dispatched_at": fields.Datetime.now(),
             })
             _logger.warning("AI Diagnosis: configuración incompleta (gateway/secret).")
             return
@@ -267,19 +268,19 @@ class HelpdeskTicket(models.Model):
             )
         except requests.RequestException as err:
             self.sudo().write({
-                "ai_diagnosis_state": "error",
-                "ai_diagnosis_last_error": f"Gateway unreachable: {err}",
-                "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
+                "ai_dx_state": "error",
+                "ai_dx_last_error": f"Gateway unreachable: {err}",
+                "ai_dx_last_dispatched_at": fields.Datetime.now(),
             })
             _logger.warning("AI Diagnosis: gateway inalcanzable: %s", err)
             return
         if response.status_code >= 300:
             self.sudo().write({
-                "ai_diagnosis_state": "error",
-                "ai_diagnosis_last_error": (
+                "ai_dx_state": "error",
+                "ai_dx_last_error": (
                     f"Gateway returned {response.status_code}: {response.text[:500]}"
                 ),
-                "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
+                "ai_dx_last_dispatched_at": fields.Datetime.now(),
             })
             _logger.warning(
                 "AI Diagnosis: gateway HTTP %s: %s",
@@ -291,10 +292,10 @@ class HelpdeskTicket(models.Model):
         except ValueError:
             data = {}
         self.sudo().write({
-            "ai_diagnosis_state": "dispatched",
-            "ai_diagnosis_last_error": False,
-            "ai_diagnosis_last_dispatched_at": fields.Datetime.now(),
-            "ai_diagnosis_run_id": (data.get("run_id") or "")[:64] if isinstance(data, dict) else "",
+            "ai_dx_state": "dispatched",
+            "ai_dx_last_error": False,
+            "ai_dx_last_dispatched_at": fields.Datetime.now(),
+            "ai_dx_run_id": (data.get("run_id") or "")[:64] if isinstance(data, dict) else "",
         })
         _logger.info(
             "AI Diagnosis: ticket %s aceptado por gateway (run_id=%s).",
@@ -312,8 +313,8 @@ class HelpdeskTicket(models.Model):
         status = (payload.get("status") or "").strip().lower()
         if status == "error":
             self.sudo().write({
-                "ai_diagnosis_state": "error",
-                "ai_diagnosis_last_error": (payload.get("error") or "")[:2000],
+                "ai_dx_state": "error",
+                "ai_dx_last_error": (payload.get("error") or "")[:2000],
             })
             return
         # Estructura esperada del agente: dict con error_root_cause, fix_applied, client_summary
@@ -323,10 +324,10 @@ class HelpdeskTicket(models.Model):
         fix_applied = (result.get("fix_applied") or "").strip()
         run_id = (payload.get("run_id") or "")[:64]
         self.sudo().write({
-            "ai_diagnosis_state": "answered",
-            "ai_diagnosis_last_error": False,
-            "ai_diagnosis_run_id": run_id or self.ai_diagnosis_run_id,
-            "ai_diagnosis_request_token": False,  # invalidar token usado
+            "ai_dx_state": "answered",
+            "ai_dx_last_error": False,
+            "ai_dx_run_id": run_id or self.ai_dx_run_id,
+            "ai_dx_request_token": False,  # invalidar token usado
         })
         if post_note and (client_summary or root_cause):
             self._ai_diagnosis_post_note(client_summary, root_cause, fix_applied)
