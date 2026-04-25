@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Cron de fallback. El dispatch principal se invoca con _trigger() al
+         crear/etiquetar el ticket; este corre cada 5 minutos por si algún
+         _trigger se perdió o el gateway estuvo caído. -->
+    <record id="ir_cron_ai_diagnosis_dispatch" model="ir.cron">
+        <field name="name">AI Diagnosis: dispatch pending tickets</field>
+        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_ai_diagnosis_dispatch_pending(batch_size=10)</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Botón en header + bloque de estado IA en el sheet -->
+    <record id="view_helpdesk_ticket_form_ai_diagnosis" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.ai_diagnosis</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_ai_diagnosis_request"
+                    type="object"
+                    string="Request AI Diagnosis"
+                    class="btn-secondary"
+                    invisible="not project_id"
+                    groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager"
+                />
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group name="ai_diagnosis_group" string="AI Diagnosis"
+                       groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager">
+                    <group>
+                        <field name="ai_diagnosis_state"/>
+                        <field name="ai_diagnosis_last_dispatched_at"/>
+                        <field name="ai_diagnosis_run_id"/>
+                    </group>
+                    <group>
+                        <field name="ai_diagnosis_last_error"
+                               invisible="ai_diagnosis_state != 'error'"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

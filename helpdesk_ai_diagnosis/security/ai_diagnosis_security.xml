@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categoría del módulo -->
+        <record id="module_category_ai_diagnosis" model="ir.module.category">
+            <field name="name">AI Diagnosis</field>
+            <field name="description">Permisos del flujo de diagnóstico IA de tickets.</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Grupo: gestión de los datos de conexión y disparo manual -->
+        <record id="group_ai_diagnosis_manager" model="res.groups">
+            <field name="name">AI Diagnosis Manager</field>
+            <field name="category_id" ref="module_category_ai_diagnosis"/>
+            <field name="comment">Permite ver/editar datos SSH de proyectos y disparar diagnósticos.</field>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="icp_ai_diagnosis_enabled" model="ir.config_parameter">
+            <field name="key">ai_diagnosis.enabled</field>
+            <field name="value">False</field>
+        </record>
+        <record id="icp_ai_diagnosis_gateway_url" model="ir.config_parameter">
+            <field name="key">ai_diagnosis.gateway_url</field>
+            <field name="value">http://conecta-ai-gateway:8080/process-ticket</field>
+        </record>
+        <record id="icp_ai_diagnosis_timeout" model="ir.config_parameter">
+            <field name="key">ai_diagnosis.timeout</field>
+            <field name="value">15</field>
+        </record>
+        <record id="icp_ai_diagnosis_post_note" model="ir.config_parameter">
+            <field name="key">ai_diagnosis.post_reply_as_note</field>
+            <field name="value">True</field>
+        </record>
+    </data>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

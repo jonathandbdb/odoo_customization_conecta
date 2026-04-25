@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_ai_diagnosis" model="ir.ui.view">
+        <field name="name">res.config.settings.form.ai_diagnosis</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="AI Diagnosis" string="AI Diagnosis"
+                     name="helpdesk_ai_diagnosis" groups="base.group_system">
+                    <block title="AI Diagnosis Gateway"
+                           help="Integración con el gateway FastAPI que ejecuta GitHub Copilot CLI para diagnóstico de tickets.">
+                        <setting id="ai_diagnosis_enabled_setting" string="Enable AI Diagnosis">
+                            <field name="ai_diagnosis_enabled"/>
+                        </setting>
+                        <setting id="ai_diagnosis_gateway_url_setting" string="Gateway URL"
+                                 help="URL del endpoint /process-ticket del gateway.">
+                            <field name="ai_diagnosis_gateway_url"/>
+                        </setting>
+                        <setting id="ai_diagnosis_webhook_secret_setting" string="Webhook HMAC Secret"
+                                 help="Secret compartido para firmar el POST al gateway.">
+                            <field name="ai_diagnosis_webhook_secret" password="True"/>
+                        </setting>
+                        <setting id="ai_diagnosis_callback_secret_setting" string="Callback HMAC Secret"
+                                 help="Secret usado por el gateway al postear el resultado.">
+                            <field name="ai_diagnosis_callback_secret" password="True"/>
+                        </setting>
+                        <setting id="ai_diagnosis_timeout_setting" string="Webhook Timeout (s)">
+                            <field name="ai_diagnosis_timeout"/>
+                        </setting>
+                        <setting id="ai_diagnosis_odoo_base_url_setting" string="Odoo Base URL">
+                            <field name="ai_diagnosis_odoo_base_url"/>
+                        </setting>
+                        <setting id="ai_diagnosis_post_reply_as_note_setting"
+                                 string="Post Agent Reply as Internal Note">
+                            <field name="ai_diagnosis_post_reply_as_note"/>
+                        </setting>
+                        <setting id="ai_diagnosis_trigger_tag_setting" string="Trigger Tag">
+                            <field name="ai_diagnosis_trigger_tag_id"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->

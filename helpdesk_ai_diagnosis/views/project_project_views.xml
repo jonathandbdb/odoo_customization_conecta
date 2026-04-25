@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_project_form_ai_diagnosis" model="ir.ui.view">
+        <field name="name">project.project.form.ai_diagnosis</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='settings']" position="after">
+                <page name="ai_diagnosis_client_connection" string="AI Diagnosis (SSH)"
+                      groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager">
+                    <group>
+                        <group string="SSH">
+                            <field name="client_ssh_host" placeholder="e.g. 10.0.0.1"/>
+                            <field name="client_ssh_port"/>
+                            <field name="client_ssh_user"/>
+                            <field name="client_ai_credential_ref"
+                                   placeholder="cliente_acme"/>
+                            <field name="ai_diagnosis_enabled"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="client_ssh_notes" nolabel="1"
+                               placeholder="Stack, paths de logs, contenedores docker, versión Odoo, etc."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4-->
