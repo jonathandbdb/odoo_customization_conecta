@@ -1,0 +1,57 @@
+# Conecta AI Gateway — docker-compose para añadir al stack de Odoo existente.
+#
+# Uso recomendado: ubicarlo en el mismo dir que el docker-compose.yml de Odoo
+# del servidor y arrancar con:
+#   docker compose -f docker-compose.yml -f conecta_ai_gateway/docker-compose.gateway.yml up -d conecta-ai-gateway
+#
+# La variable `${ODOO_NETWORK}` debe apuntar a la red de docker donde corre Odoo
+# (revisá con `docker network ls`).
+
+services:
+  conecta-ai-gateway:
+    image: conecta-ai-gateway:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: conecta-ai-gateway
+    restart: unless-stopped
+    environment:
+      WEBHOOK_SECRET: "${WEBHOOK_SECRET:?set in .env}"
+      CALLBACK_SECRET: "${CALLBACK_SECRET:?set in .env}"
+      TIMESTAMP_TOLERANCE: "${TIMESTAMP_TOLERANCE:-300}"
+      COPILOT_BIN: "${COPILOT_BIN:-copilot}"
+      COPILOT_MODEL: "${COPILOT_MODEL:-claude-sonnet-4.5}"
+      COPILOT_TOKEN: "${COPILOT_TOKEN:-}"
+      COPILOT_EXTRA_ARGS: "${COPILOT_EXTRA_ARGS:-}"
+      COPILOT_TIMEOUT_SECONDS: "${COPILOT_TIMEOUT_SECONDS:-600}"
+      ODOO_REQUEST_TIMEOUT: "${ODOO_REQUEST_TIMEOUT:-30}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    volumes:
+      # Claves SSH dedicadas al gateway (read-only). Montar fuera con perms 600.
+      - ./gateway-data/ssh:/home/gateway/.ssh:ro
+      # Auth persistente de Copilot CLI (sobrevive recreates).
+      - ./gateway-data/copilot:/home/gateway/.copilot
+      # Workdir efímero (logs/transcript de runs).
+      - ./gateway-data/runs:/tmp/copilot-runs
+    networks:
+      - default
+      # Si Odoo corre en otra red de compose, descomentar:
+      # - odoo_default
+    ports:
+      # Solo loopback: el webhook entra desde Odoo en localhost.
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3); sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+# networks:
+#   odoo_default:
+#     external: true
