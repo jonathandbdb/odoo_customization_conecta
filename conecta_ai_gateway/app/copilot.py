@@ -120,6 +120,10 @@ async def run_copilot(
         "-p", prompt,
         "--no-color",
         "--log-level", "error",
+        "--no-ask-user",          # No preguntar al usuario, modo autónomo
+        "--allow-all-paths",      # Permitir escribir transcript dentro del workdir
+        "--silent",               # Solo respuesta del agente (sin stats)
+        "--no-auto-update",       # Bloquear auto-update en runtime
     ]
     if settings.copilot_model:
         args += ["--model", settings.copilot_model]
