@@ -90,14 +90,18 @@ class OdooXmlrpcClient:
         return self.execute_kw(model, "search_read", [domain], kwargs)
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)
+def _client_singleton(url: str, db: str, login: str, password: str, timeout: int) -> OdooXmlrpcClient:
+    return OdooXmlrpcClient(url=url, db=db, login=login, password=password, timeout=timeout)
+
+
 def get_odoo_client(settings: Settings) -> OdooXmlrpcClient:
-    return OdooXmlrpcClient(
-        url=settings.odoo_url,
-        db=settings.odoo_db,
-        login=settings.odoo_login,
-        password=settings.odoo_password,
-        timeout=settings.odoo_request_timeout,
+    return _client_singleton(
+        settings.odoo_url,
+        settings.odoo_db,
+        settings.odoo_login,
+        settings.odoo_password,
+        settings.odoo_request_timeout,
     )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
