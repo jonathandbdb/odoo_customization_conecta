@@ -54,6 +54,15 @@ class Settings(BaseSettings):
     # --- Odoo callback ---
     odoo_request_timeout: int = 30
 
+    # --- Odoo XMLRPC (consumido por endpoints como /support-clients) ---
+    odoo_url: str = Field(default="", description="Base URL de Odoo (p.ej. https://odoo.conecta.sh).")
+    odoo_db: str = Field(default="", description="Nombre de la base de Odoo.")
+    odoo_login: str = Field(default="", description="Login del usuario de servicio.")
+    odoo_password: str = Field(default="", description="Password del usuario de servicio.")
+
+    # --- API Token consumido por Hermes (Bearer) ---
+    hermes_api_token: str = Field(default="", description="Token Bearer requerido en endpoints internos consumidos por Hermes.")
+
     # --- Server ---
     log_level: str = "info"
 

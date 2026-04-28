@@ -5,6 +5,12 @@
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
+            <!-- Comentario en español: campo de nivel de soporte visible para todos los managers de proyecto -->
+            <xpath expr="//page[@name='settings']" position="inside">
+                <group string="Support">
+                    <field name="support_level"/>
+                </group>
+            </xpath>
             <xpath expr="//page[@name='settings']" position="after">
                 <page name="ai_diagnosis_client_connection" string="AI Diagnosis (SSH)"
                       groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager">

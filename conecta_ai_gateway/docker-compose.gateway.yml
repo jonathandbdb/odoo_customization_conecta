@@ -25,6 +25,11 @@ services:
       COPILOT_EXTRA_ARGS: "${COPILOT_EXTRA_ARGS:-}"
       COPILOT_TIMEOUT_SECONDS: "${COPILOT_TIMEOUT_SECONDS:-600}"
       ODOO_REQUEST_TIMEOUT: "${ODOO_REQUEST_TIMEOUT:-30}"
+      ODOO_URL: "${ODOO_URL:-}"
+      ODOO_DB: "${ODOO_DB:-}"
+      ODOO_LOGIN: "${ODOO_LOGIN:-}"
+      ODOO_PASSWORD: "${ODOO_PASSWORD:-}"
+      HERMES_API_TOKEN: "${HERMES_API_TOKEN:-}"
       LOG_LEVEL: "${LOG_LEVEL:-info}"
     volumes:
       # Claves SSH dedicadas al gateway (read-only). Montar fuera con perms 600.

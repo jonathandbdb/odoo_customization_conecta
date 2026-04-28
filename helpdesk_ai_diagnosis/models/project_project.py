@@ -42,5 +42,17 @@ class ProjectProject(models.Model):
              "disparar el diagnóstico IA automático.",
         groups="helpdesk_ai_diagnosis.group_ai_diagnosis_manager",
     )
+    # Nivel de soporte contratado por el cliente. Vacío = sin soporte.
+    # Lo consume el endpoint /support-clients del gateway para que Hermes
+    # sepa a qué clientes puede atender vía SSH.
+    support_level = fields.Selection(
+        selection=[
+            ("standard", "Standard"),
+            ("medium", "Medium"),
+            ("full", "Full"),
+        ],
+        string="Support Level",
+        help="Contracted support level. Empty means the client has no support contract.",
+    )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
